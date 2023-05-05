@@ -1,0 +1,35 @@
+#spring.application.name=api-gateway
+#server.port=8765
+
+#eureka.client.serviceUrl.defaultZone=http://localhost:8761/eureka
+
+#spring.cloud.gateway.discovery.locator.enabled=true
+#spring.cloud.gateway.discovery.locator.enabled=false
+#spring.cloud.gateway.discovery.locator.lower-case-service-id=true
+
+spring.application.name: api-gateway
+
+server.port: 8765
+
+eureka.client.serviceUrl.defaultZone: http://localhost:8761/eureka
+
+spring.cloud.gateway.discovery.locator:
+                            enabled: true
+                            lower-case-service-id: true
+
+spring:
+  cloud:
+    gateway:
+      routes:
+      - id: circuitbreaker_route
+        #uri: lb://backing-service:8088
+        uri: lb://localhost:8088
+        predicates:
+        - Path=/consumingServiceEndpoint
+        filters:
+        - name: CircuitBreaker
+          args:
+            name: myCircuitBreaker
+            fallbackUri: forward:/inCaseOfFailureUseThis
+        - RewritePath=/consumingServiceEndpoint, /backingServiceEndpoint
+
